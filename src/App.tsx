@@ -121,6 +121,7 @@ function App() {
   const [dragState, setDragState] = useState<DragState | null>(null)
   const [viewportPanState, setViewportPanState] =
     useState<ViewportPanState | null>(null)
+  const [viewportScrollLeft, setViewportScrollLeft] = useState(0)
   const [statusMessage, setStatusMessage] = useState(
     'Importuj první reference a posuň jejich podlahovou linku.'
   )
@@ -493,6 +494,7 @@ function App() {
 
     shell.scrollLeft = nextScrollLeft
     shell.scrollTop = nextScrollTop
+    setViewportScrollLeft(shell.scrollLeft)
 
     expandWorkspaceIfNeeded(shell.scrollLeft)
   }
@@ -522,6 +524,7 @@ function App() {
       return
     }
 
+    setViewportScrollLeft(shell.scrollLeft)
     expandWorkspaceIfNeeded(shell.scrollLeft)
   }
 
@@ -853,7 +856,9 @@ function App() {
           >
             <div className="grid" />
             <div className="global-baseline" style={{ top: boardState.baselineY }}>
-              <span>Společná podlaha</span>
+              <span style={{ left: Math.max(18, viewportScrollLeft) }}>
+                Společná podlaha
+              </span>
             </div>
 
             {guideLines.map((line) => (
@@ -879,7 +884,9 @@ function App() {
                   setDragState({ type: 'guide-line', lineId: line.id })
                 }}
               >
-                <span>{line.name}</span>
+                <span style={{ left: Math.max(18, viewportScrollLeft) }}>
+                  {line.name}
+                </span>
               </button>
             ))}
 
