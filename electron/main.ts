@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// Electron main process stays in ESM, but Electron itself is loaded through createRequire.
 const require = createRequire(import.meta.url)
 const { app, BrowserWindow, dialog, globalShortcut, ipcMain } = require('electron') as typeof import('electron')
 const fs = require('node:fs/promises') as typeof import('node:fs/promises')
@@ -29,6 +30,7 @@ const defaultProjectFileName = 'height-reference-project.hrp'
 
 const devServerUrl = process.env.VITE_DEV_SERVER_URL
 
+// Creates the single desktop window used by the current MVP.
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1540,
@@ -57,12 +59,14 @@ const createWindow = async () => {
   if (devServerUrl) {
     await mainWindow.loadURL(devServerUrl)
   } else {
+    // Production build loads the renderer from the local dist folder via file://.
     await mainWindow.loadFile(
       path.resolve(__dirname, '..', '..', 'dist', 'index.html')
     )
   }
 }
 
+// Click-through mode lets the overlay stay visible while forwarding mouse input to apps underneath.
 const applyClickThrough = (enabled: boolean) => {
   if (!mainWindow) {
     return
@@ -77,6 +81,7 @@ const applyClickThrough = (enabled: boolean) => {
   }
 }
 
+// IPC handlers expose only the small desktop API surface needed by the renderer.
 const registerIpc = () => {
   ipcMain.handle('window:get-state', () => windowState)
   ipcMain.handle('window:set-always-on-top', (_event, enabled: boolean) => {
@@ -139,6 +144,7 @@ const registerIpc = () => {
   })
 }
 
+// Global shortcuts are registered in the main process so they work even when the window is unfocused.
 const registerShortcuts = () => {
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
     applyClickThrough(!windowState.clickThrough)

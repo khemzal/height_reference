@@ -1,3 +1,4 @@
+// State mirrored from the Electron window into the saved project.
 export type OverlayState = {
   alwaysOnTop: boolean
   clickThrough: boolean
@@ -38,6 +39,7 @@ export type HeightReferenceProject = {
   guideLines: HeightGuideLine[]
 }
 
+// Runtime validation keeps loading tolerant to malformed or outdated JSON files.
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
@@ -106,6 +108,7 @@ export const serializeProject = (project: HeightReferenceProject) =>
 export const parseProject = (raw: string): HeightReferenceProject => {
   const parsed: unknown = JSON.parse(raw)
 
+  // Older saved files may not contain guide lines yet.
   if (
     isRecord(parsed) &&
     parsed.version === 1 &&
@@ -114,6 +117,7 @@ export const parseProject = (raw: string): HeightReferenceProject => {
     parsed.guideLines = []
   }
 
+  // Width is kept only for backward compatibility with an older guide line experiment.
   if (isRecord(parsed) && Array.isArray(parsed.guideLines)) {
     parsed.guideLines = parsed.guideLines.map((line) => {
       if (isRecord(line) && !('width' in line)) {

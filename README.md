@@ -10,6 +10,9 @@ První prototyp desktopové aplikace pro porovnávání výšek postav při anim
 - per-item měřítko a opacity
 - ručně tažená podlahová linka pro každou referenci
 - vlastní pojmenované a obarvené horizontální referenční linky přes celou šířku plochy
+- sticky názvy výškových linek při horizontálním posunu
+- klik mimo objekt zruší výběr aktivní reference nebo linky
+- baseline vybraného obrázku se zobrazuje jen při aktivním výběru
 - rychlé zarovnání všech referencí na společnou podlahu
 - uložení a načtení projektu do JSON souboru
 - globální přepnutí `click-through` režimu přes `Ctrl+Shift+Space`
@@ -49,4 +52,6 @@ npm run start
 ## Další dokumentace
 
 - technický přehled architektury: [docs/architecture-overview.md](docs/architecture-overview.md)
+- přehled implementovaných funkcí a UX změn: [docs/implementation-summary.md](docs/implementation-summary.md)
 - uživatelský návod: [docs/user-guide.md](docs/user-guide.md)
+- TODO na další iteraci: [TODO.md](TODO.md)

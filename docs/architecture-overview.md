@@ -12,6 +12,8 @@ Aktuální MVP umí:
 - posouvat je po pracovní ploše
 - nastavit pro každou referenci vlastní floor line
 - zarovnat reference na jednu společnou baseline
+- vytvářet vlastní pojmenované a barevné výškové linky
+- rušit výběr klikem do prázdné plochy
 - uložit a načíst projekt
 - držet okno `always-on-top`
 - přepínat `click-through`
@@ -83,6 +85,13 @@ Zodpovědnost:
 
 Renderer je zatím implementovaný jako jeden větší React komponent. To je v pořádku pro prototyp, ale další krok bude rozdělení na menší části.
 
+Renderer navíc řeší i několik důležitých UX pravidel:
+
+- mutual exclusive selection mezi referencí a výškovou linkou
+- scroll-aware vykreslení názvu výškových linek
+- zobrazení per-item baseline jen pro aktivní referenci
+- rozšiřování boardu pouze doprava
+
 ## Datový model
 
 Soubor:
@@ -123,6 +132,7 @@ Uložitelný projekt:
 - `board`
 - `overlayState`
 - `items`
+- `guideLines`
 
 Součástí souboru je i validace načítaného JSON formátu.
 

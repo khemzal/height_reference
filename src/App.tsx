@@ -10,6 +10,7 @@ import {
   type ReferenceItem,
 } from './project/schema'
 
+// Active drag operation on the board. Only one interaction is tracked at a time.
 type DragState =
   | {
       type: 'item'
@@ -58,6 +59,7 @@ const boardExpandThreshold = 320
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max)
 
+// New guide lines start slightly above the shared floor so they are immediately visible.
 const createGuideLine = (boardHeight: number): HeightGuideLine => ({
   id: crypto.randomUUID(),
   name: 'Výšková reference',
@@ -66,6 +68,7 @@ const createGuideLine = (boardHeight: number): HeightGuideLine => ({
   width: 0,
 })
 
+// Imported images are stored as data URLs so the project can be saved into a single JSON file.
 const readFileAsReference = (file: File, index: number): Promise<ReferenceItem> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -136,7 +139,25 @@ function App() {
     [guideLines, selectedGuideLineId]
   )
 
+  // Clicking empty space clears both item and guide line selection.
+  const clearSelection = () => {
+    setSelectedId(null)
+    setSelectedGuideLineId(null)
+  }
+
+  // Item and guide line selection are intentionally mutually exclusive to keep the inspector simple.
+  const selectItem = (itemId: string) => {
+    setSelectedId(itemId)
+    setSelectedGuideLineId(null)
+  }
+
+  const selectGuideLine = (lineId: string) => {
+    setSelectedGuideLineId(lineId)
+    setSelectedId(null)
+  }
+
   useEffect(() => {
+    // Renderer starts by asking Electron for the real window state so the UI matches the native window.
     const loadWindowState = async () => {
       const api = window.heightReference
 
@@ -152,6 +173,7 @@ function App() {
   }, [])
 
   useEffect(() => {
+    // Global pointer listeners keep dragging active even when the cursor leaves the original element.
     const handlePointerMove = (event: PointerEvent) => {
       if (!dragState || !boardRef.current) {
         return
@@ -232,6 +254,7 @@ function App() {
     }
   }, [dragState, boardState.height, boardState.width])
 
+  // Window settings are mirrored locally first, then forwarded to Electron through the preload bridge.
   const updateWindowState = async (nextState: Partial<OverlayState>) => {
     const mergedState = { ...overlayState, ...nextState }
     setOverlayState(mergedState)
@@ -327,7 +350,7 @@ function App() {
   const addGuideLine = () => {
     const nextLine = createGuideLine(boardState.height)
     setGuideLines((currentLines) => [...currentLines, nextLine])
-    setSelectedGuideLineId(nextLine.id)
+    selectGuideLine(nextLine.id)
     setStatusMessage('Přidala jsem novou výškovou referenční linku.')
   }
 
@@ -446,6 +469,7 @@ function App() {
 
     const addRight = boardExpandStep
 
+    // The board only grows to the right so already positioned references never shift unexpectedly.
     setBoardState((currentBoard) => ({
       ...currentBoard,
       width: currentBoard.width + addRight,
@@ -492,6 +516,7 @@ function App() {
       viewportPanState.startScrollTop -
       (event.clientY - viewportPanState.startClientY)
 
+    // Panning is implemented by scrolling the viewport rather than moving the board content itself.
     shell.scrollLeft = nextScrollLeft
     shell.scrollTop = nextScrollTop
     setViewportScrollLeft(shell.scrollLeft)
@@ -771,7 +796,7 @@ function App() {
                         ? 'reference-chip active-chip'
                         : 'reference-chip'
                     }
-                    onClick={() => setSelectedGuideLineId(line.id)}
+                    onClick={() => selectGuideLine(line.id)}
                   >
                     <span className="line-chip-label">
                       <span
@@ -800,7 +825,7 @@ function App() {
                 <li key={item.id}>
                   <button
                     className={selectedId === item.id ? 'reference-chip active-chip' : 'reference-chip'}
-                    onClick={() => setSelectedId(item.id)}
+                    onClick={() => selectItem(item.id)}
                   >
                     <span>{item.name}</span>
                     <small>{Math.round(item.height * item.scale)} px</small>
@@ -853,6 +878,13 @@ function App() {
             ref={boardRef}
             className="board"
             style={{ width: boardState.width, height: boardState.height }}
+            onPointerDown={(event) => {
+              if (event.button !== 0) {
+                return
+              }
+
+              clearSelection()
+            }}
           >
             <div className="grid" />
             <div className="global-baseline" style={{ top: boardState.baselineY }}>
@@ -880,10 +912,11 @@ function App() {
                   }
 
                   event.stopPropagation()
-                  setSelectedGuideLineId(line.id)
+                  selectGuideLine(line.id)
                   setDragState({ type: 'guide-line', lineId: line.id })
                 }}
               >
+                {/* The label stays at the line start until it would leave the viewport, then it pins left. */}
                 <span style={{ left: Math.max(18, viewportScrollLeft) }}>
                   {line.name}
                 </span>
@@ -916,7 +949,8 @@ function App() {
                       return
                     }
 
-                    setSelectedId(item.id)
+                    event.stopPropagation()
+                    selectItem(item.id)
                     setDragState({
                       type: 'item',
                       itemId: item.id,
@@ -928,23 +962,26 @@ function App() {
                   }}
                 >
                   <img src={item.src} alt={item.name} draggable={false} />
-                  <button
-                    type="button"
-                    className="baseline-handle"
-                    data-role="baseline-handle"
-                    style={{ top: item.baselineY * item.scale }}
-                    onPointerDown={(event) => {
-                      if (event.button !== 0) {
-                        return
-                      }
+                  {/* The per-image baseline is only shown for the selected reference to reduce visual noise. */}
+                  {selectedId === item.id ? (
+                    <button
+                      type="button"
+                      className="baseline-handle"
+                      data-role="baseline-handle"
+                      style={{ top: item.baselineY * item.scale }}
+                      onPointerDown={(event) => {
+                        if (event.button !== 0) {
+                          return
+                        }
 
-                      event.stopPropagation()
-                      setSelectedId(item.id)
-                      setDragState({ type: 'baseline', itemId: item.id })
-                    }}
-                  >
-                    <span>{item.name}</span>
-                  </button>
+                        event.stopPropagation()
+                        selectItem(item.id)
+                        setDragState({ type: 'baseline', itemId: item.id })
+                      }}
+                    >
+                      <span>{item.name}</span>
+                    </button>
+                  ) : null}
                 </article>
               )
             })}

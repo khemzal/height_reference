@@ -20,6 +20,7 @@ npm run start
 ## Co aplikace aktuálně umí
 
 - zobrazit hlavní možnosti nahoře ve vodorovném menu
+- scrollovat horní menu i při větším množství obsahu
 - přidat více obrázků
 - posouvat reference po ploše
 - upravit floor line pro každou referenci
@@ -33,6 +34,7 @@ npm run start
 - načíst projekt
 - přepínat overlay režim okna
 - schovat a znovu ukázat levé menu s možnostmi
+- zrušit výběr kliknutím mimo objekt
 
 ## Základní workflow
 
@@ -66,9 +68,13 @@ Na pracovní ploše klikni na referenci a táhni ji myší.
 
 Takto si postavy rozložíš vedle sebe.
 
+Když klikneš mimo reference a mimo výškové linky, aktivní výběr se zruší.
+
 ## 3. Nastav floor line
 
 Každá reference má modrou vodorovnou linku.
+
+Tato linka je vidět jen u právě vybrané reference, aby plocha zůstala přehlednější.
 
 Tuto linku táhni nahoru nebo dolů tak, aby odpovídala místu, kde se postava dotýká podlahy.
 
@@ -96,6 +102,8 @@ U každé linky můžeš nastavit:
 Linku můžeš také chytit přímo v pracovní ploše a táhnout nahoru nebo dolů.
 
 To je užitečné například pro referenční výšku hlavní postavy, očí, ramen nebo jiné důležité úrovně. Linka se zobrazuje přes celou šířku pracovní plochy stejně jako společná podlaha.
+
+Název linky zůstává vlevo na začátku linie. Pokud odscrolluješ tak daleko, že by zmizel mimo viewport, přichytí se k levému okraji obrazovky.
 
 ## 5. Uprav vybranou referenci
 
@@ -161,6 +169,8 @@ To je užitečné hlavně ve chvíli, kdy chceš mít pro reference co nejvíc m
 
 Horní menu navíc zůstává připnuté nahoře i při pohybu po pracovní ploše, takže se k možnostem dostaneš bez vracení nahoru.
 
+Pokud je v menu víc obsahu, můžeš v něm scrollovat i nahoru a dolů.
+
 ## Globální zkratky
 
 Aktuálně je důležitá hlavně tato:
@@ -195,4 +205,5 @@ To je důležité hlavně ve chvíli, kdy je okno neklikatelné.
 ## Související dokumentace
 
 - [docs/architecture-overview.md](architecture-overview.md)
+- [docs/implementation-summary.md](implementation-summary.md)
 - [docs/white-screen-fix.md](white-screen-fix.md)
