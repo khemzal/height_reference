@@ -1,0 +1,22 @@
+- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+- [x] Clarify Project Requirements
+  - Windows-first desktop overlay tool for animation reference.
+  - Base stack: Electron + Vite + React + TypeScript.
+  - MVP: import images, move them, set a floor line, align to one baseline.
+- [x] Scaffold the Project
+  - Vite React TypeScript base created and adjusted for the current Node version.
+- [x] Customize the Project
+  - Added Electron shell, always-on-top controls, click-through toggle, the first reference-board prototype, and JSON project save/load.
+- [x] Install Required Extensions
+  - No extensions needed.
+- [x] Compile the Project
+  - `npm run lint` and `npm run build` both pass.
+- [x] Create and Run Task
+  - Skipped for now.
+- [ ] Launch the Project
+  - Wait for user confirmation before launching in debug mode.
+- [x] Ensure Documentation is Complete
+  - README updated for the current prototype.
+
+- Keep the renderer focused on the current MVP.
+- Prefer small iterative changes.
