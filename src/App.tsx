@@ -89,7 +89,8 @@ const readFileAsReference = (file: File, index: number): Promise<ReferenceItem> 
           height: image.height,
           x: 240 + index * 300,
           y: 220,
-          scale,
+          scaleX: scale,
+          scaleY: scale,
           opacity: 1,
           baselineY: image.height * 0.92,
         })
@@ -190,8 +191,8 @@ function App() {
               return item
             }
 
-            const scaledWidth = item.width * item.scale
-            const scaledHeight = item.height * item.scale
+            const scaledWidth = item.width * item.scaleX
+            const scaledHeight = item.height * item.scaleY
 
             return {
               ...item,
@@ -235,7 +236,7 @@ function App() {
 
           return {
             ...item,
-            baselineY: clamp((localY - item.y) / item.scale, 0, item.height),
+            baselineY: clamp((localY - item.y) / item.scaleY, 0, item.height),
           }
         })
       )
@@ -309,7 +310,7 @@ function App() {
         item.id === itemId
           ? {
               ...item,
-              y: boardState.baselineY - item.baselineY * item.scale,
+              y: boardState.baselineY - item.baselineY * item.scaleY,
             }
           : item
       )
@@ -320,7 +321,7 @@ function App() {
     setItems((currentItems) =>
       currentItems.map((item) => ({
         ...item,
-        y: boardState.baselineY - item.baselineY * item.scale,
+        y: boardState.baselineY - item.baselineY * item.scaleY,
       }))
     )
     setStatusMessage('Všechny reference jsou zarovnané na společnou podlahu.')
@@ -654,21 +655,39 @@ function App() {
               <h3>{selectedItem.name}</h3>
 
               <label className="slider-row">
-                <span>Měřítko</span>
+                <span>Šířka</span>
                 <input
                   type="range"
                   min="0.1"
                   max="1.6"
                   step="0.01"
-                  value={selectedItem.scale}
+                  value={selectedItem.scaleX}
                   onChange={(event) => {
                     updateSelectedItem((item) => ({
                       ...item,
-                      scale: Number(event.target.value),
+                      scaleX: Number(event.target.value),
                     }))
                   }}
                 />
-                <strong>{selectedItem.scale.toFixed(2)}×</strong>
+                <strong>{selectedItem.scaleX.toFixed(2)}×</strong>
+              </label>
+
+              <label className="slider-row">
+                <span>Výška</span>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1.6"
+                  step="0.01"
+                  value={selectedItem.scaleY}
+                  onChange={(event) => {
+                    updateSelectedItem((item) => ({
+                      ...item,
+                      scaleY: Number(event.target.value),
+                    }))
+                  }}
+                />
+                <strong>{selectedItem.scaleY.toFixed(2)}×</strong>
               </label>
 
               <label className="slider-row">
@@ -828,7 +847,7 @@ function App() {
                     onClick={() => selectItem(item.id)}
                   >
                     <span>{item.name}</span>
-                    <small>{Math.round(item.height * item.scale)} px</small>
+                    <small>{Math.round(item.height * item.scaleY)} px</small>
                   </button>
                 </li>
               ))}
@@ -924,8 +943,8 @@ function App() {
             ))}
 
             {items.map((item) => {
-              const scaledWidth = item.width * item.scale
-              const scaledHeight = item.height * item.scale
+              const scaledWidth = item.width * item.scaleX
+              const scaledHeight = item.height * item.scaleY
 
               return (
                 <article
@@ -968,7 +987,7 @@ function App() {
                       type="button"
                       className="baseline-handle"
                       data-role="baseline-handle"
-                      style={{ top: item.baselineY * item.scale }}
+                      style={{ top: item.baselineY * item.scaleY }}
                       onPointerDown={(event) => {
                         if (event.button !== 0) {
                           return

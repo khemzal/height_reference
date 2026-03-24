@@ -13,7 +13,8 @@ export type ReferenceItem = {
   height: number
   x: number
   y: number
-  scale: number
+  scaleX: number
+  scaleY: number
   opacity: number
   baselineY: number
 }
@@ -56,7 +57,8 @@ const isReferenceItem = (value: unknown): value is ReferenceItem => {
     typeof value.height === 'number' &&
     typeof value.x === 'number' &&
     typeof value.y === 'number' &&
-    typeof value.scale === 'number' &&
+    typeof value.scaleX === 'number' &&
+    typeof value.scaleY === 'number' &&
     typeof value.opacity === 'number' &&
     typeof value.baselineY === 'number'
   )
@@ -128,6 +130,23 @@ export const parseProject = (raw: string): HeightReferenceProject => {
       }
 
       return line
+    })
+  }
+
+  // Older saved files stored only one shared scale value.
+  if (isRecord(parsed) && Array.isArray(parsed.items)) {
+    parsed.items = parsed.items.map((item) => {
+      if (isRecord(item) && 'scale' in item) {
+        const legacyScale = typeof item.scale === 'number' ? item.scale : 1
+
+        return {
+          ...item,
+          scaleX: 'scaleX' in item && typeof item.scaleX === 'number' ? item.scaleX : legacyScale,
+          scaleY: 'scaleY' in item && typeof item.scaleY === 'number' ? item.scaleY : legacyScale,
+        }
+      }
+
+      return item
     })
   }
 

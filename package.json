@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {
+    "prestart": "npm run build",
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron:build\" \"npm:dev:electron:run\"",
     "dev:renderer": "vite",
     "dev:electron:build": "tsc -p tsconfig.electron.json --watch --preserveWatchOutput",
